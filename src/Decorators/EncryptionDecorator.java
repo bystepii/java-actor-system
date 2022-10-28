@@ -16,10 +16,12 @@ import java.util.UUID;
 public class EncryptionDecorator extends AbstractDecorator {
 
     private final String password;
+    private final AESUtil aes;
 
     public EncryptionDecorator(Actor actor, String password) {
         super(actor);
         this.password = password;
+        aes = new AESUtil();
     }
 
     public EncryptionDecorator(Actor actor) {
@@ -30,23 +32,23 @@ public class EncryptionDecorator extends AbstractDecorator {
     public void send(Message msg) {
         if (msg.getText() != null && !msg.getText().equals("")) {
             try {
-                msg.setText(AESUtil.encrypt(msg.getText(), password));
+                msg.setText(aes.encrypt(msg.getText(), password));
             } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
                      NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
             }
         }
-        actor.send(msg);
+        super.send(msg);
     }
 
     @Override
     public void process(Message msg) {
         if (msg.getText() != null && !msg.getText().equals("")) {
             try {
-                msg.setText(AESUtil.decrypt(msg.getText(), password));
+                msg.setText(aes.decrypt(msg.getText(), password));
             } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
                      NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
-                System.out.println(e.getMessage());
+                e.printStackTrace();
             }
         }
         actor.process(msg);

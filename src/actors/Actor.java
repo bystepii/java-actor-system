@@ -2,13 +2,8 @@ package actors;
 
 import messages.Message;
 
-public interface Actor {
-    void send(Message msg);
-
-    Message receive();
-
+public interface Actor extends ActorRef {
     void actorLoop();
-
     void process(Message msg);
     String getName();
     void setName(String name);

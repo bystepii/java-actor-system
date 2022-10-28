@@ -16,11 +16,6 @@ public abstract class AbstractActor implements Actor {
     }
 
     @Override
-    public Message receive() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
     public void actorLoop() {
         while (!Thread.currentThread().isInterrupted()) {
             try {

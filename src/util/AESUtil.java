@@ -15,6 +15,13 @@ import java.util.Base64;
 public class AESUtil {
 
     private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
+    private final IvParameterSpec IV;
+    private final String SALT;
+
+    public AESUtil() {
+        IV = generateIv();
+        SALT = generateSalt();
+    }
 
     public static SecretKey getKeyFromPassword(String password, String salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -62,19 +69,17 @@ public class AESUtil {
         return new String(plainText);
     }
 
-    public static String encrypt(String input, String password)
+    public String encrypt(String input, String password)
             throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
-        SecretKey key = getKeyFromPassword(password, generateSalt());
-        IvParameterSpec iv = generateIv();
-        return encrypt(ALGORITHM, input, key, iv);
+        SecretKey key = getKeyFromPassword(password, SALT);
+        return encrypt(ALGORITHM, input, key, IV);
     }
 
-    public static String decrypt(String cipherText, String password)
+    public String decrypt(String cipherText, String password)
             throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
-        SecretKey key = getKeyFromPassword(password, generateSalt());
-        IvParameterSpec iv = generateIv();
-        return decrypt(ALGORITHM, cipherText, key, iv);
+        SecretKey key = getKeyFromPassword(password, SALT);
+        return decrypt(ALGORITHM, cipherText, key, IV);
     }
 }

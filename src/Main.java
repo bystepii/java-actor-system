@@ -41,7 +41,7 @@ public class Main {
 
          */
 
-        Actor hw = ActorContext.spawnActor("hw2", new EncryptionDecorator(new HelloWorldActor()));
+        ActorProxy hw = ActorContext.spawnActor("hw2", new EncryptionDecorator(new HelloWorldActor()));
         hw.send(new Message("Hello World!"));
         hw.send(new QuitMessage());
     }

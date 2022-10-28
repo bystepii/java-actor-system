@@ -1,6 +1,7 @@
 package messages;
 
 import actors.Actor;
+import actors.ActorRef;
 
 public class Message {
     private Actor from;

@@ -13,11 +13,8 @@ public abstract class AbstractDecorator extends AbstractActor {
     }
 
     @Override
-    public abstract void send(Message msg);
-
-    @Override
-    public Message receive() {
-        throw new UnsupportedOperationException("Not implemented");
+    public void send(Message msg) {
+        messageQueue.add(msg);
     }
 
     @Override

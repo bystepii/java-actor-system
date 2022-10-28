@@ -5,26 +5,26 @@ import messages.Message;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ActorProxy implements Actor {
+public class ActorProxy implements ActorRef {
 
-    private final Actor actor;
+    private final ActorRef actor;
+    private final Actor self = new AbstractActor() {
+        @Override
+        public void process(Message msg) {
+            receivedMessages.add(msg);
+        }
+    };
     private static final BlockingQueue<Message> receivedMessages = new LinkedBlockingQueue<>();
 
-    public ActorProxy(Actor actor) {
+    public ActorProxy(ActorRef actor) {
         this.actor = actor;
     }
 
-    @Override
     public void send(Message msg) {
-        if (msg.getFrom() == actor)
-            receivedMessages.add(msg);
-        else {
-            msg.setFrom(this);
-            actor.send(msg);
-        }
+        msg.setFrom(self);
+        actor.send(msg);
     }
 
-    @Override
     public Message receive() {
         while (true) {
             try {
@@ -32,25 +32,5 @@ public class ActorProxy implements Actor {
             } catch (InterruptedException ignored) {
             }
         }
-    }
-
-    @Override
-    public void actorLoop() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public void process(Message msg) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public String getName() {
-        return actor.getName() + "Proxy";
-    }
-
-    @Override
-    public void setName(String name) {
-        throw new UnsupportedOperationException("Not implemented");
     }
 }

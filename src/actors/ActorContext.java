@@ -10,7 +10,7 @@ public class ActorContext {
 
     protected ActorContext() {}
 
-    public static Actor spawnActor(String name, Actor actor) {
+    public static ActorProxy spawnActor(String name, Actor actor) {
         actor.setName(name);
         actors.put(name, actor);
         new Thread(actor::actorLoop).start();
