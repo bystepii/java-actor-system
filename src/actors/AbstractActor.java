@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class AbstractActor implements Actor {
-    private final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
+    protected final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
     protected String name;
 
     @Override

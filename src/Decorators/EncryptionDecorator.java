@@ -28,23 +28,27 @@ public class EncryptionDecorator extends AbstractDecorator {
 
     @Override
     public void send(Message msg) {
-        try {
-            msg.setText(AESUtil.encrypt(msg.getText(), password));
-            actor.send(msg);
-        } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
-                 NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
-            System.out.println(e.getMessage());
+        if (msg.getText() != null && !msg.getText().equals("")) {
+            try {
+                msg.setText(AESUtil.encrypt(msg.getText(), password));
+            } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
+                     NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
+                System.out.println(e.getMessage());
+            }
         }
+        actor.send(msg);
     }
 
     @Override
     public void process(Message msg) {
-        try {
-            msg.setText(AESUtil.decrypt(msg.getText(), password));
-            actor.process(msg);
-        } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
-                 NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
-            System.out.println(e.getMessage());
+        if (msg.getText() != null && !msg.getText().equals("")) {
+            try {
+                msg.setText(AESUtil.decrypt(msg.getText(), password));
+            } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
+                     NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
+                System.out.println(e.getMessage());
+            }
         }
+        actor.process(msg);
     }
 }

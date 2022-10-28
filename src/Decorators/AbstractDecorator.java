@@ -1,9 +1,11 @@
 package Decorators;
 
+import actors.AbstractActor;
 import actors.Actor;
 import messages.Message;
+import messages.QuitMessage;
 
-public abstract class AbstractDecorator implements Actor {
+public abstract class AbstractDecorator extends AbstractActor {
     protected final Actor actor;
 
     public AbstractDecorator(Actor actor) {
@@ -20,7 +22,16 @@ public abstract class AbstractDecorator implements Actor {
 
     @Override
     public void actorLoop() {
-        actor.actorLoop();
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Message m = messageQueue.take();
+                if (m instanceof QuitMessage)
+                    Thread.currentThread().interrupt();
+                else
+                    process(m);
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 
     @Override
