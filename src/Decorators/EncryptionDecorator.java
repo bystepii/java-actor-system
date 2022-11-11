@@ -38,7 +38,7 @@ public class EncryptionDecorator extends AbstractDecorator {
                 e.printStackTrace();
             }
         }
-        super.send(msg);
+        messageQueue.add(msg);
     }
 
     @Override

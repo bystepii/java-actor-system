@@ -1,6 +1,8 @@
-import Decorators.EncryptionDecorator;
-import actors.*;
-import messages.*;
+import Decorators.DummyDecorator;
+import actors.ActorContext;
+import actors.ActorProxy;
+import actors.HelloWorldActor;
+import messages.Message;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,8 +43,12 @@ public class Main {
 
          */
 
-        ActorProxy hw = ActorContext.spawnActor("hw2", new EncryptionDecorator(new HelloWorldActor()));
+        ActorProxy hw = ActorContext.spawnActor("hw2", new DummyDecorator(new DummyDecorator(new HelloWorldActor(), "Inner"), "Outer"));
         hw.send(new Message("Hello World!"));
-        hw.send(new QuitMessage());
+        //hw.send(new AddClosureMessage((msg) -> msg.getText().toLowerCase().contains("hello")));
+        //hw.send(new Message("Hello World!"));
+        //hw.send(new Message("Hey World!"));
+        //hw.send(new QuitMessage());
+
     }
 }

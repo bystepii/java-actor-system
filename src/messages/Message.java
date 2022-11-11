@@ -1,18 +1,17 @@
 package messages;
 
-import actors.Actor;
 import actors.ActorRef;
 
 public class Message {
-    private Actor from;
+    private ActorRef from;
     private String text;
 
-    public Message(Actor from, String text) {
+    public Message(ActorRef from, String text) {
         this.from = from;
         this.text = text;
     }
 
-    public Message(Actor from) {
+    public Message(ActorRef from) {
         this(from, "");
     }
 
@@ -24,11 +23,11 @@ public class Message {
         this(null, "");
     }
 
-    public Actor getFrom() {
+    public ActorRef getFrom() {
         return from;
     }
 
-    public void setFrom(Actor from) {
+    public void setFrom(ActorRef from) {
         this.from = from;
     }
 

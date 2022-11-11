@@ -8,13 +8,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ActorProxy implements ActorRef {
 
     private final ActorRef actor;
-    private final Actor self = new AbstractActor() {
+    private final BlockingQueue<Message> receivedMessages = new LinkedBlockingQueue<>();
+
+    private final ActorRef self = new ActorRef() {
         @Override
-        public void process(Message msg) {
+        public void send(Message msg) {
             receivedMessages.add(msg);
         }
+
+        @Override
+        public String getName() {
+            return ActorProxy.this.getName();
+        }
     };
-    private static final BlockingQueue<Message> receivedMessages = new LinkedBlockingQueue<>();
 
     public ActorProxy(ActorRef actor) {
         this.actor = actor;
@@ -23,6 +29,11 @@ public class ActorProxy implements ActorRef {
     public void send(Message msg) {
         msg.setFrom(self);
         actor.send(msg);
+    }
+
+    @Override
+    public String getName() {
+        return actor.getName() + " (proxy)";
     }
 
     public Message receive() {

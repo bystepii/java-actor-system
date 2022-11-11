@@ -1,6 +1,9 @@
 package actors;
 
-import messages.*;
+import messages.AddInsultMessage;
+import messages.GetAllInsultsMessage;
+import messages.GetInsultMessage;
+import messages.Message;
 
 import java.util.ArrayList;
 
@@ -24,7 +27,8 @@ public class InsultActor extends AbstractActor {
                 if (msg.getFrom() != null)
                     msg.getFrom().send(new Message(this, insults.toString()));
             }
-            default -> {}
+            default -> {
+            }
         }
     }
 }
