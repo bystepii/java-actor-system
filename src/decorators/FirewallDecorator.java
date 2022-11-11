@@ -1,4 +1,4 @@
-package Decorators;
+package decorators;
 
 import actors.Actor;
 import actors.ActorContext;

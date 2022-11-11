@@ -1,4 +1,4 @@
-import Decorators.DummyDecorator;
+import decorators.DummyDecorator;
 import actors.ActorContext;
 import actors.ActorProxy;
 import actors.HelloWorldActor;
