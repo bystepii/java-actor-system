@@ -1,4 +1,8 @@
 import actors.*;
+import messages.AddInsultMessage;
+import messages.GetAllInsultsMessage;
+import messages.GetInsultMessage;
+import messages.QuitMessage;
 
 public class Main {
     public static void main(String[] args) {
@@ -56,5 +60,19 @@ public class Main {
         System.out.println(insulter.getInsult());
         System.out.println(insulter.getAllInsults());
         insulter.end();
+
+        ActorProxy insult2 = ActorContext.spawnActor("insult3", new ReflectiveActor(new InsultServiceImpl()));
+        insult2.send(new AddInsultMessage("Insult4"));
+        insult2.send(new AddInsultMessage("Insult5"));
+        insult2.send(new AddInsultMessage("Insult6"));
+        insult2.send(new GetInsultMessage());
+        insult2.send(new GetInsultMessage());
+        insult2.send(new GetInsultMessage());
+        System.out.println(insult2.receive().getBody());
+        System.out.println(insult2.receive().getBody());
+        System.out.println(insult2.receive().getBody());
+        insult2.send(new GetAllInsultsMessage());
+        System.out.println(insult2.receive().getBody());
+        insult2.send(new QuitMessage());
     }
 }

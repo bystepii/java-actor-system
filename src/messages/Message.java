@@ -18,11 +18,11 @@ public class Message<T> {
     }
 
     public Message(T body) {
-        this(null, "", body);
+        this(null, null, body);
     }
 
     public Message() {
-        this(null, "", null);
+        this(null, null, null);
     }
 
     public ActorRef getSender() {
