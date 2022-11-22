@@ -1,8 +1,4 @@
-import decorators.DummyDecorator;
-import actors.ActorContext;
-import actors.ActorProxy;
-import actors.HelloWorldActor;
-import messages.Message;
+import actors.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -43,12 +39,22 @@ public class Main {
 
          */
 
-        ActorProxy hw = ActorContext.spawnActor("hw2", new DummyDecorator(new DummyDecorator(new HelloWorldActor(), "Inner"), "Outer"));
-        hw.send(new Message("Hello World!"));
+        //ActorProxy hw = ActorContext.spawnActor("hw2", new DummyDecorator(new DummyDecorator(new HelloWorldActor(), "Inner"), "Outer"));
+        //hw.send(new Message("Hello World!"));
         //hw.send(new AddClosureMessage((msg) -> msg.getText().toLowerCase().contains("hello")));
         //hw.send(new Message("Hello World!"));
         //hw.send(new Message("Hey World!"));
         //hw.send(new QuitMessage());
 
+        ActorProxy insult = ActorContext.spawnActor("insult2", new InsultActor());
+        InsultService insulter = (InsultService) DynamicProxy.intercept(insult, InsultService.class);
+        insulter.addInsult("Insult1");
+        insulter.addInsult("Insult2");
+        insulter.addInsult("Insult3");
+        System.out.println(insulter.getInsult());
+        System.out.println(insulter.getInsult());
+        System.out.println(insulter.getInsult());
+        System.out.println(insulter.getAllInsults());
+        insulter.end();
     }
 }
