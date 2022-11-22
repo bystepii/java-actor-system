@@ -27,7 +27,8 @@ public class ActorProxy implements ActorRef {
     }
 
     public void send(Message msg) {
-        msg.setFrom(self);
+        if (msg.getFrom() == null)
+            msg.setFrom(self);
         actor.send(msg);
     }
 

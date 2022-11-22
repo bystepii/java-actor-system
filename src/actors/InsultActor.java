@@ -6,10 +6,11 @@ import messages.GetInsultMessage;
 import messages.Message;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class InsultActor extends AbstractActor {
 
-    private final ArrayList<String> insults = new ArrayList<>();
+    private final List<String> insults = new ArrayList<>();
 
     @Override
     public void process(Message msg) {

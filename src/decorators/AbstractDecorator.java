@@ -1,10 +1,10 @@
 package decorators;
 
-import actors.AbstractActor;
 import actors.Actor;
+import actors.Modifier;
 import messages.Message;
 
-public abstract class AbstractDecorator extends AbstractActor {
+public abstract class AbstractDecorator implements Actor {
     protected final Actor actor;
 
     public AbstractDecorator(Actor actor) {
@@ -20,9 +20,6 @@ public abstract class AbstractDecorator extends AbstractActor {
     public abstract void send(Message msg);
 
     @Override
-    public abstract void process(Message msg);
-
-    @Override
     public String getName() {
         return actor.getName();
     }
@@ -30,5 +27,25 @@ public abstract class AbstractDecorator extends AbstractActor {
     @Override
     public void setName(String name) {
         actor.setName(name);
+    }
+
+    @Override
+    public void end() {
+        actor.end();
+    }
+
+    @Override
+    public void pause() {
+        actor.pause();
+    }
+
+    @Override
+    public void addModifier(Modifier modifier) {
+        actor.addModifier(modifier);
+    }
+
+    @Override
+    public void removeModifier(Modifier modifier) {
+        actor.removeModifier(modifier);
     }
 }

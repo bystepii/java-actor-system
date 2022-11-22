@@ -22,9 +22,4 @@ public class LambdaFirewallDecorator extends AbstractDecorator {
         else if (filters.stream().allMatch(f -> f.test(msg)))
             actor.send(msg);
     }
-
-    @Override
-    public void process(Message msg) {
-        actor.process(msg);
-    }
 }

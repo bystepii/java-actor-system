@@ -1,15 +1,11 @@
 package actors;
 
-import messages.Message;
-
-public interface Actor extends ActorRef {
+public interface Actor extends ActorRef, ProcessModifiable {
     void start();
 
     void end();
 
     void pause();
-
-    void process(Message msg);
 
     String getName();
 
