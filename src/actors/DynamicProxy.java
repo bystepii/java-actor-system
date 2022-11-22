@@ -11,7 +11,7 @@ public class DynamicProxy implements InvocationHandler {
 
     private final ActorRef targetActor;
 
-    private final BlockingQueue<Message> receivedMessages = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Message<?>> receivedMessages = new LinkedBlockingQueue<>();
 
     public DynamicProxy(ActorRef target) {
         this.targetActor = target;
@@ -40,26 +40,16 @@ public class DynamicProxy implements InvocationHandler {
             Class<?>[] argTypes = method.getParameterTypes();
             Constructor<?> constructor = msgClass.getConstructor(argTypes);
 
-            Message msg = (Message) constructor.newInstance(args);
+            Message<?> msg = (Message<?>) constructor.newInstance(args);
 
-            msg.setFrom(new ActorRef() {
-                @Override
-                public void send(Message msg) {
-                    receivedMessages.add(msg);
-                }
-
-                @Override
-                public String getName() {
-                    return targetActor.getName();
-                }
-            });
+            msg.setSender(receivedMessages::add);
 
             targetActor.send(msg);
 
             if (method.getName().startsWith("get")) {
                 while (true) {
                     try {
-                        return receivedMessages.take().getText();
+                        return receivedMessages.take().getBody();
                     } catch (InterruptedException ignored) {
                     }
                 }

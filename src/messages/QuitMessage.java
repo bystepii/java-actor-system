@@ -1,18 +1,14 @@
 package messages;
 
-import actors.Actor;
+import actors.ActorRef;
 
-public class QuitMessage extends Message {
-    public QuitMessage(Actor from, String text) {
-        super(from, text);
+public class QuitMessage extends Message<String> {
+    public QuitMessage(ActorRef sender, String senderName, String body) {
+        super(sender, senderName, body);
     }
 
-    public QuitMessage(String text) {
-        super(text);
-    }
-
-    public QuitMessage(Actor from) {
-        super(from);
+    public QuitMessage(String body) {
+        super(body);
     }
 
     public QuitMessage() {

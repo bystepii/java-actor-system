@@ -1,18 +1,18 @@
 package messages;
 
-import actors.Actor;
+import actors.ActorRef;
 
-public class PingMessage extends Message {
-    public PingMessage(Actor from, String text) {
-        super(from, text);
+public class PingMessage extends Message<String> {
+    public PingMessage(ActorRef sender, String senderName, String body) {
+        super(sender, senderName, body);
     }
 
-    public PingMessage(String text) {
-        super(text);
+    public PingMessage(ActorRef sender, String senderName) {
+        super(sender, senderName);
     }
 
-    public PingMessage(Actor from) {
-        super(from);
+    public PingMessage(String body) {
+        super(body);
     }
 
     public PingMessage() {

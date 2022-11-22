@@ -13,20 +13,20 @@ public class InsultActor extends AbstractActor {
     private final List<String> insults = new ArrayList<>();
 
     @Override
-    public void process(Message msg) {
+    public void process(Message<?> msg) {
         switch (msg) {
             case GetInsultMessage ignored -> {
-                if (msg.getFrom() != null) {
+                if (msg.getSender() != null) {
                     if (insults.size() > 0)
-                        msg.getFrom().send(new Message(this, insults.get((int) (Math.random() * insults.size()))));
+                        msg.getSender().send(new Message<>(this, name, insults.get((int) (Math.random() * insults.size()))));
                     else
-                        msg.getFrom().send(new Message(this, "I have no insults"));
+                        msg.getSender().send(new Message<>(this, name, "I have no insults"));
                 }
             }
-            case AddInsultMessage ignored -> insults.add(msg.getText());
+            case AddInsultMessage ignored -> insults.add((String) msg.getBody());
             case GetAllInsultsMessage ignored -> {
-                if (msg.getFrom() != null)
-                    msg.getFrom().send(new Message(this, insults.toString()));
+                if (msg.getSender() != null)
+                    msg.getSender().send(new Message<>(this, name, insults));
             }
             default -> {
             }

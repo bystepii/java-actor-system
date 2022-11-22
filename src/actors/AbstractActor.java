@@ -8,14 +8,30 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Abstract base class for all Actors.
+ */
 public abstract class AbstractActor implements Actor {
-    protected final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-    private final List<Modifier> modifiers = new LinkedList<>();
+
+    /**
+     * The queue of messages received by the Actor.
+     */
+    protected final BlockingQueue<Message<?>> messageQueue = new LinkedBlockingQueue<>();
+    /**
+     * The list of modifiers to apply to the messages received by the Actor.
+     */
+    private final List<Modifier<Message<?>>> modifiers = new LinkedList<>();
+    /**
+     * The name of the Actor.
+     */
     protected String name;
+    /**
+     * Indicates whether the Actor has started.
+     */
     private boolean hasStarted = false;
 
     @Override
-    public void send(Message msg) {
+    public void send(Message<?> msg) {
         messageQueue.add(msg);
     }
 
@@ -27,12 +43,12 @@ public abstract class AbstractActor implements Actor {
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                Message m = messageQueue.take();
+                Message<?> m = messageQueue.take();
                 if (m instanceof QuitMessage)
                     Thread.currentThread().interrupt();
                 else {
-                    for (Modifier modifier : modifiers)
-                        modifier.modify(m);
+                    for (var modifier : modifiers)
+                        m = modifier.modify(m);
                     process(m);
                 }
             } catch (InterruptedException ignored) {
@@ -40,17 +56,12 @@ public abstract class AbstractActor implements Actor {
         }
     }
 
-    @Override
-    public void end() {
-        send(new QuitMessage());
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    protected abstract void process(Message msg);
+    /**
+     * Processes the given message.
+     *
+     * @param msg the message to process
+     */
+    protected abstract void process(Message<?> msg);
 
     @Override
     public String getName() {
@@ -63,12 +74,12 @@ public abstract class AbstractActor implements Actor {
     }
 
     @Override
-    public void addModifier(Modifier modifier) {
+    public void addModifier(Modifier<Message<?>> modifier) {
         modifiers.add(modifier);
     }
 
     @Override
-    public void removeModifier(Modifier modifier) {
+    public void removeModifier(Modifier<Message<?>> modifier) {
         modifiers.remove(modifier);
     }
 }

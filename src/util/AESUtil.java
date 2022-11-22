@@ -45,41 +45,40 @@ public class AESUtil {
         return Base64.getEncoder().encodeToString(salt);
     }
 
-    public static String encrypt(String algorithm, String input, SecretKey key, IvParameterSpec iv)
+    public static <T> String encrypt(String algorithm, T input, SecretKey key, IvParameterSpec iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
 
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-        byte[] cipherText = cipher.doFinal(input.getBytes());
+        byte[] cipherText = cipher.doFinal((byte[]) input);
         return Base64.getEncoder()
                 .encodeToString(cipherText);
     }
 
-    public static String decrypt(String algorithm, String cipherText, SecretKey key, IvParameterSpec iv)
+    public static <T> T decrypt(String algorithm, String encrypted, SecretKey key, IvParameterSpec iv)
             throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
 
         Cipher cipher = Cipher.getInstance(algorithm);
         cipher.init(Cipher.DECRYPT_MODE, key, iv);
-        byte[] plainText = cipher.doFinal(Base64.getDecoder()
-                .decode(cipherText));
-        return new String(plainText);
+        return (T) cipher.doFinal(Base64.getDecoder()
+                .decode(encrypted));
     }
 
-    public String encrypt(String input, String password)
+    public <T> String encrypt(T input, String password)
             throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
         SecretKey key = getKeyFromPassword(password, SALT);
         return encrypt(ALGORITHM, input, key, IV);
     }
 
-    public String decrypt(String cipherText, String password)
+    public <T> T decrypt(String encrypted, String password)
             throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException,
             NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
         SecretKey key = getKeyFromPassword(password, SALT);
-        return decrypt(ALGORITHM, cipherText, key, IV);
+        return decrypt(ALGORITHM, encrypted, key, IV);
     }
 }

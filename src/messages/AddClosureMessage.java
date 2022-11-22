@@ -2,14 +2,13 @@ package messages;
 
 import java.util.function.Predicate;
 
-public class AddClosureMessage extends Message {
-    private final Predicate<Message> closure;
+public class AddClosureMessage extends Message<Predicate<Message<?>>> {
 
-    public AddClosureMessage(Predicate<Message> closure) {
-        this.closure = closure;
+    public AddClosureMessage(Predicate<Message<?>> closure) {
+        super(closure);
     }
 
-    public Predicate<Message> getClosure() {
-        return closure;
+    public Predicate<Message<?>> getClosure() {
+        return getBody();
     }
 }

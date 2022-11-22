@@ -4,9 +4,21 @@ import actors.Actor;
 import actors.Modifier;
 import messages.Message;
 
+/**
+ * Abstract base class for Actor decorators.
+ */
 public abstract class AbstractDecorator implements Actor {
+
+    /**
+     * The Actor to decorate.
+     */
     protected final Actor actor;
 
+    /**
+     * Creates a new AbstractDecorator for the given Actor.
+     *
+     * @param actor the Actor to decorate.
+     */
     public AbstractDecorator(Actor actor) {
         this.actor = actor;
     }
@@ -17,7 +29,7 @@ public abstract class AbstractDecorator implements Actor {
     }
 
     @Override
-    public abstract void send(Message msg);
+    public abstract void send(Message<?> msg);
 
     @Override
     public String getName() {
@@ -30,22 +42,12 @@ public abstract class AbstractDecorator implements Actor {
     }
 
     @Override
-    public void end() {
-        actor.end();
-    }
-
-    @Override
-    public void pause() {
-        actor.pause();
-    }
-
-    @Override
-    public void addModifier(Modifier modifier) {
+    public void addModifier(Modifier<Message<?>> modifier) {
         actor.addModifier(modifier);
     }
 
     @Override
-    public void removeModifier(Modifier modifier) {
+    public void removeModifier(Modifier<Message<?>> modifier) {
         actor.removeModifier(modifier);
     }
 }

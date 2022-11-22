@@ -1,7 +1,16 @@
 package actors;
 
-import messages.Message;
+/**
+ * Represents a modifier that can be applied to an Actor.
+ *
+ * @param <T> the type of the message that can be modified.
+ */
+public interface Modifier<T> {
 
-public interface Modifier {
-    void modify(Message msg);
+    /**
+     * Modifies the message object.
+     *
+     * @param object the message object to modify.
+     */
+    T modify(T object);
 }

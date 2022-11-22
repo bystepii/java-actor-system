@@ -11,12 +11,11 @@ public class DummyDecorator extends AbstractDecorator {
         super(actor);
         this.name = name;
 
-        addModifier(msg -> msg.setText(msg.getText() + " (process decorated by " + name + ")"));
+        addModifier(msg -> new Message<>(msg.getBody() + " (process decorated by " + name + ")"));
     }
 
     @Override
-    public void send(Message msg) {
-        msg.setText(msg.getText() + " (send decorated by " + name + ")");
-        actor.send(msg);
+    public void send(Message<?> msg) {
+        actor.send(new Message<>(this, name, msg.getBody() + " (send decorated by " + name + ")"));
     }
 }

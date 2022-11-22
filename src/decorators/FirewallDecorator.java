@@ -11,8 +11,8 @@ public class FirewallDecorator extends AbstractDecorator {
     }
 
     @Override
-    public void send(Message msg) {
-        if (msg.getFrom() != null && ActorContext.lookup(msg.getFrom().getName()) == msg.getFrom())
+    public void send(Message<?> msg) {
+        if (msg.getSender() != null && ActorContext.lookup(msg.getSenderName()) == msg.getSender())
             actor.send(msg);
     }
 }

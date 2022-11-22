@@ -2,40 +2,50 @@ package messages;
 
 import actors.ActorRef;
 
-public class Message {
-    private ActorRef from;
-    private String text;
+public class Message<T> {
+    private ActorRef sender;
+    private String senderName;
+    private T body;
 
-    public Message(ActorRef from, String text) {
-        this.from = from;
-        this.text = text;
+    public Message(ActorRef sender, String senderName, T body) {
+        this.sender = sender;
+        this.senderName = senderName;
+        this.body = body;
     }
 
-    public Message(ActorRef from) {
-        this(from, "");
+    public Message(ActorRef sender, String senderName) {
+        this(sender, senderName, null);
     }
 
-    public Message(String text) {
-        this(null, text);
+    public Message(T body) {
+        this(null, "", body);
     }
 
     public Message() {
-        this(null, "");
+        this(null, "", null);
     }
 
-    public ActorRef getFrom() {
-        return from;
+    public ActorRef getSender() {
+        return sender;
     }
 
-    public void setFrom(ActorRef from) {
-        this.from = from;
+    public void setSender(ActorRef sender) {
+        this.sender = sender;
     }
 
-    public String getText() {
-        return text;
+    public String getSenderName() {
+        return senderName;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
+    }
+
+    public T getBody() {
+        return body;
+    }
+
+    public void setBody(T body) {
+        this.body = body;
     }
 }

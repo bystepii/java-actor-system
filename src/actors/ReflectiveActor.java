@@ -9,7 +9,7 @@ public class ReflectiveActor extends AbstractActor {
     }
 
     @Override
-    protected void process(Message msg) {
+    protected void process(Message<?> msg) {
 
     }
 }

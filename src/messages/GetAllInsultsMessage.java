@@ -1,13 +1,11 @@
 package messages;
 
-import actors.Actor;
+import actors.ActorRef;
 
-public class GetAllInsultsMessage extends Message {
-    public GetAllInsultsMessage(Actor from) {
-        super(from);
-    }
+import java.util.List;
 
-    public GetAllInsultsMessage() {
-        super();
+public class GetAllInsultsMessage extends Message<List<String>> {
+    public GetAllInsultsMessage(ActorRef sender, String senderName) {
+        super(sender, senderName);
     }
 }

@@ -1,9 +1,9 @@
 package messages;
 
-import actors.Actor;
+import actors.ActorRef;
 
-public class RingMessage extends Message {
-    public RingMessage(Actor from, String text) {
-        super(from, text);
+public class RingMessage extends Message<String> {
+    public RingMessage(ActorRef sender, String senderName, String body) {
+        super(sender, senderName, body);
     }
 }

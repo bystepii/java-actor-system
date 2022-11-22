@@ -24,15 +24,16 @@ public class EncryptionDecorator extends AbstractDecorator {
         aes = new AESUtil();
 
         addModifier(msg -> {
-            if (msg.getText() != null && !msg.getText().equals("")) {
+            if (msg.getBody() != null && !msg.getBody().equals("")) {
                 try {
-                    msg.setText(aes.decrypt(msg.getText(), password));
+                    return new Message<>(aes.decrypt((String) msg.getBody(), password));
                 } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
                          NoSuchAlgorithmException | BadPaddingException | InvalidKeyException |
                          InvalidKeySpecException e) {
                     e.printStackTrace();
                 }
             }
+            return msg;
         });
     }
 
@@ -41,10 +42,10 @@ public class EncryptionDecorator extends AbstractDecorator {
     }
 
     @Override
-    public void send(Message msg) {
-        if (msg.getText() != null && !msg.getText().equals("")) {
+    public void send(Message<?> msg) {
+        if (msg.getBody() != null && !msg.getBody().equals("")) {
             try {
-                msg.setText(aes.encrypt(msg.getText(), password));
+                actor.send(new Message<>(aes.encrypt(msg.getBody(), password)));
             } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException |
                      NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
                 e.printStackTrace();

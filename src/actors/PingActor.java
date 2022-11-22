@@ -5,14 +5,14 @@ import messages.PingMessage;
 
 public class PingActor extends AbstractActor {
     @Override
-    public void process(Message msg) {
+    public void process(Message<?> msg) {
         if (msg instanceof PingMessage m) {
-            System.out.println("PingActor " + name + " received " + m.getText() + " from " + (msg.getFrom() == null ? "null" : msg.getFrom().getName()));
-            ActorRef from = m.getFrom();
-            m.setFrom(this);
-            m.setText("Pong");
+            System.out.println("PingActor " + name + " received " + m.getBody() + " from " + (msg.getSender() == null ? "null" : msg.getSenderName()));
+            ActorRef from = m.getSender();
+            m.setSender(this);
+            m.setBody("Pong");
             from.send(msg);
         } else
-            System.out.println(msg.getText());
+            System.out.println(msg.getBody());
     }
 }
