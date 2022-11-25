@@ -1,9 +1,11 @@
 package actors;
 
 import messages.Message;
+import messages.MethodInvocationMessage;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * This reflective actor is an actor that automatically maps the processing of
@@ -17,7 +19,7 @@ public class ReflectiveActor extends AbstractActor {
     /**
      * The object on which the methods will be invoked.
      */
-    private final Object implementation;
+    private final Service implementation;
 
     /**
      * Default constructor for the ReflectiveActor class.
@@ -25,7 +27,7 @@ public class ReflectiveActor extends AbstractActor {
      * @param implementation the object on which the methods will be invoked.
      */
 
-    public ReflectiveActor(Object implementation) {
+    public ReflectiveActor(Service implementation) {
         this.implementation = implementation;
     }
 
@@ -36,27 +38,38 @@ public class ReflectiveActor extends AbstractActor {
      */
     @Override
     protected void process(Message<?> msg) {
+        String methodName;
+        Class<?>[] parameterTypes;
+        Object[] args;
 
-        // Get the name of the message class.
-        Class<?> msgClass = msg.getClass();
-        String methodName = msgClass.getSimpleName();
+        // If the message is a MethodInvocationMessage, we use the method name
+        // specified in the message.
+        if (msg instanceof MethodInvocationMessage m) {
+            methodName = m.getMethodName();
+            args = m.getArgs();
+            parameterTypes = args == null ?
+                    null : Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
+        }
+        else {
+            // Get the name of the message class.
+            Class<?> msgClass = msg.getClass();
+            methodName = msgClass.getSimpleName();
 
-        // Convert the first letter to lower case
-        methodName = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+            // Convert the first letter to lower case and remove the "Message" suffix
+            methodName = methodName.substring(0, 1).toLowerCase() + methodName.substring(1);
+            methodName = methodName.substring(0, methodName.length() - 7);
 
-        // Remove the "Message" suffix
-        methodName = methodName.substring(0, methodName.length() - 7);
-
-        try {
             // Get the parameter types of the method for the corresponding message body type
             // new Class<?>[0] indicates that the method has no parameters
-            Class<?>[] parameterTypes = msg.getBody() == null ?
-                    new Class<?>[0] : new Class<?>[]{msg.getBody().getClass()};
+            parameterTypes = msg.getBody() == null ? null : new Class<?>[]{msg.getBody().getClass()};
 
             // Get the array of arguments for the method invocation
             // new Object[0] indicates that the method has no arguments
-            Object[] args = msg.getBody() == null ?
+            args = msg.getBody() == null ?
                     new Object[0] : new Object[]{msg.getBody()};
+        }
+
+        try {
 
             // Get the method for the given name and parameter types from the implementation object
             Method method = implementation.getClass().getMethod(methodName, parameterTypes);
@@ -69,7 +82,7 @@ public class ReflectiveActor extends AbstractActor {
             if (returnType != void.class)
                 msg.getSender().send(new Message<>(this, name, result));
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No method found for message " + msgClass.getSimpleName());
+            throw new RuntimeException("No method with name " + methodName + " in class " + implementation.getClass().getName());
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
         }

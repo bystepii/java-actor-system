@@ -1,6 +1,7 @@
 package actors;
 
 import messages.Message;
+import messages.MethodInvocationMessage;
 import messages.QuitMessage;
 
 import java.lang.reflect.*;
@@ -17,7 +18,7 @@ public class DynamicProxy implements InvocationHandler {
         this.targetActor = target;
     }
 
-    public static Object intercept(ActorRef targetActor, Class<?> interfaceType) {
+    public static Object intercept(ActorRef targetActor, Class<? extends Service> interfaceType) {
         return Proxy.newProxyInstance(interfaceType.getClassLoader(),
                 new Class[]{interfaceType},
                 new DynamicProxy(targetActor));
@@ -25,40 +26,52 @@ public class DynamicProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = null;
         try {
-            if (method.getName().equals("end")) {
-                targetActor.send(new QuitMessage());
-                return null;
+            switch (method.getName()) {
+                case "end":
+                    targetActor.send(new QuitMessage());
+                    return null;
+                case "equals":
+                    return targetActor.equals(args[0]);
+                case "hashCode":
+                    return targetActor.hashCode();
+                case "toString":
+                    return targetActor.toString();
             }
 
             String methodName = String.valueOf(method.getName().charAt(0)).toUpperCase()
                     + method.getName().substring(1);
 
-            Class<?> msgClass = Class.forName("messages." + methodName + "Message");
+            Message<?> msg;
 
-            Class<?>[] argTypes = method.getParameterTypes();
-            Constructor<?> constructor = msgClass.getConstructor(argTypes);
+            try {
+                Class<?> msgClass = Class.forName("messages." + methodName + "Message");
 
-            Message<?> msg = (Message<?>) constructor.newInstance(args);
+                Class<?>[] argTypes = method.getParameterTypes();
+                Constructor<?> constructor = msgClass.getConstructor(argTypes);
+
+                msg = (Message<?>) constructor.newInstance(args);
+            } catch (ClassNotFoundException e) {
+                msg = new MethodInvocationMessage(methodName, args);
+            }
 
             msg.setSender(receivedMessages::add);
 
             targetActor.send(msg);
 
-            if (method.getName().startsWith("get")) {
+            // If the method has a return type, we wait for the response
+            if (method.getReturnType() != void.class) {
                 while (true) {
                     try {
                         return receivedMessages.take().getBody();
-                    } catch (InterruptedException ignored) {
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        } catch (InvocationTargetException ite) {
-            throw ite.getTargetException();
         } catch (Exception e) {
             System.err.println("Invocation of " + method.getName() + " failed");
         }
-        return result;
+        return null;
     }
 }

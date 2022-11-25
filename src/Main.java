@@ -1,8 +1,5 @@
 import actors.*;
-import messages.AddInsultMessage;
-import messages.GetAllInsultsMessage;
-import messages.GetInsultMessage;
-import messages.QuitMessage;
+import messages.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -50,29 +47,47 @@ public class Main {
         //hw.send(new Message("Hey World!"));
         //hw.send(new QuitMessage());
 
+        System.out.println("Testing DynamicProxy and InsultService");
+
         ActorProxy insult = ActorContext.spawnActor("insult2", new InsultActor());
         InsultService insulter = (InsultService) DynamicProxy.intercept(insult, InsultService.class);
-        insulter.addInsult("Insult1");
+
+          insulter.addInsult("Insult1");
         insulter.addInsult("Insult2");
         insulter.addInsult("Insult3");
+
         System.out.println(insulter.getInsult());
         System.out.println(insulter.getInsult());
         System.out.println(insulter.getInsult());
+
         System.out.println(insulter.getAllInsults());
-        insulter.end();
+
+          insulter.end();
+
+
+        System.out.println("Testing ReflectiveActor and InsultServiceImpl");
 
         ActorProxy insult2 = ActorContext.spawnActor("insult3", new ReflectiveActor(new InsultServiceImpl()));
+
         insult2.send(new AddInsultMessage("Insult4"));
         insult2.send(new AddInsultMessage("Insult5"));
         insult2.send(new AddInsultMessage("Insult6"));
+
         insult2.send(new GetInsultMessage());
         insult2.send(new GetInsultMessage());
         insult2.send(new GetInsultMessage());
+
         System.out.println(insult2.receive().getBody());
         System.out.println(insult2.receive().getBody());
         System.out.println(insult2.receive().getBody());
+
         insult2.send(new GetAllInsultsMessage());
+
         System.out.println(insult2.receive().getBody());
+
+
         insult2.send(new QuitMessage());
+
+
     }
 }

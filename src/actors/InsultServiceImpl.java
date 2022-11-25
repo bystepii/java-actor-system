@@ -22,7 +22,5 @@ public class InsultServiceImpl implements InsultService {
     }
 
     @Override
-    public void end() {
-        throw new UnsupportedOperationException();
-    }
+    public void end() {}
 }
