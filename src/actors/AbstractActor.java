@@ -40,12 +40,19 @@ public abstract class AbstractActor implements Actor {
     private boolean hasStarted = false;
 
     @Override
-    public void send(Message<?> msg) {
+    public final void send(Message<?> msg) {
+        // Log the event
+        notifyListeners(
+                new MessageEvent<>(
+                        msg.getSender() instanceof Actor ? (Actor) msg.getSender() : null,
+                        ActorEvent.EventType.MESSAGE_SENT, msg
+                )
+        );
         messageQueue.add(msg);
     }
 
     @Override
-    public void start() {
+    public final void start() {
         if (hasStarted)
             throw new IllegalStateException("Actor has already started!");
         hasStarted = true;
