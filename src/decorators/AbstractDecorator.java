@@ -3,6 +3,8 @@ package decorators;
 import actors.Actor;
 import actors.Modifier;
 import messages.Message;
+import monitoring.ActorEvent;
+import monitoring.ActorListener;
 
 /**
  * Abstract base class for Actor decorators.
@@ -49,5 +51,20 @@ public abstract class AbstractDecorator implements Actor {
     @Override
     public void removeModifier(Modifier<Message<?>> modifier) {
         actor.removeModifier(modifier);
+    }
+
+    @Override
+    public void attach(ActorListener listener) {
+        actor.attach(listener);
+    }
+
+    @Override
+    public void detach(ActorListener listener) {
+        actor.detach(listener);
+    }
+
+    @Override
+    public void notifyListeners(ActorEvent event) {
+        actor.notifyListeners(event);
     }
 }
