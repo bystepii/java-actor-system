@@ -1,7 +1,8 @@
 import actors.*;
-import messages.*;
-
-import java.nio.file.Watchable;
+import messages.AddInsultMessage;
+import messages.GetAllInsultsMessage;
+import messages.GetInsultMessage;
+import messages.QuitMessage;
 
 public class Main {
     public static void main(String[] args) {
@@ -54,7 +55,7 @@ public class Main {
         ActorProxy insult = ActorContext.spawnActor("insult2", new InsultActor());
         InsultService insulter = (InsultService) DynamicProxy.intercept(insult, InsultService.class);
 
-          insulter.addInsult("Insult1");
+        insulter.addInsult("Insult1");
         insulter.addInsult("Insult2");
         insulter.addInsult("Insult3");
 
@@ -64,7 +65,7 @@ public class Main {
 
         System.out.println(insulter.getAllInsults());
 
-          insulter.end();
+        insulter.end();
 
 
         System.out.println("Testing ReflectiveActor and InsultServiceImpl");

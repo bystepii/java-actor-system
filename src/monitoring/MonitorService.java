@@ -8,16 +8,15 @@ import java.util.*;
 
 public class MonitorService {
 
-    private final List<ActorEvent> events = new LinkedList<>();
-
     private static MonitorService instance = null;
+    private final List<ActorEvent> events = new LinkedList<>();
 
     protected MonitorService() {
 
     }
 
     public static MonitorService getInstance() {
-        if(instance == null)
+        if (instance == null)
             instance = new MonitorService();
 
         return instance;

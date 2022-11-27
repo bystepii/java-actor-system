@@ -1,7 +1,6 @@
 package monitoring;
 
 import actors.Actor;
-import actors.ActorRef;
 
 import java.util.EventObject;
 
@@ -33,6 +32,7 @@ public class ActorEvent extends EventObject {
         CREATED,
         STOPPED,
         ABORTED,
-        MESSAGE_SENT, MESSAGE_RECEIVED
+        MESSAGE_SENT,
+        MESSAGE_RECEIVED
     }
 }

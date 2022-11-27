@@ -49,8 +49,7 @@ public class ReflectiveActor extends AbstractActor {
             args = m.getArgs();
             parameterTypes = args == null ?
                     null : Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
-        }
-        else {
+        } else {
             // Get the name of the message class.
             Class<?> msgClass = msg.getClass();
             methodName = msgClass.getSimpleName();

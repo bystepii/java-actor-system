@@ -17,10 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class AbstractActor implements Actor {
 
     /**
-     * The name of the Actor.
-     */
-    protected String name;
-    /**
      * The queue of messages received by the Actor.
      */
     protected final BlockingQueue<Message<?>> messageQueue = new LinkedBlockingQueue<>();
@@ -28,12 +24,14 @@ public abstract class AbstractActor implements Actor {
      * The list of modifiers to apply to the messages received by the Actor.
      */
     private final List<Modifier<Message<?>>> modifiers = new LinkedList<>();
-
     /**
      * The list of listeners to notify when an event occurs.
      */
     private final List<ActorListener> listeners = new LinkedList<>();
-
+    /**
+     * The name of the Actor.
+     */
+    protected String name;
     /**
      * Indicates whether the Actor has started.
      */
@@ -65,8 +63,7 @@ public abstract class AbstractActor implements Actor {
                 if (m instanceof QuitMessage) {
                     Thread.currentThread().interrupt();
                     notifyListeners(new ActorEvent(this, ActorEvent.EventType.STOPPED));
-                }
-                else {
+                } else {
                     for (var modifier : modifiers)
                         m = modifier.modify(m);
                     process(m);

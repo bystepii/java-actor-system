@@ -22,5 +22,6 @@ public class InsultServiceImpl implements InsultService {
     }
 
     @Override
-    public void end() {}
+    public void end() {
+    }
 }
