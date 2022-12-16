@@ -28,20 +28,25 @@ public class DynamicProxy implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            switch (method.getName()) {
-                case "end":
-                    targetActor.send(new QuitMessage());
-                    return null;
-                case "equals":
-                    return targetActor.equals(args[0]);
-                case "hashCode":
-                    return targetActor.hashCode();
-                case "toString":
-                    return targetActor.toString();
+    public Object invoke(Object proxy, Method method, Object[] args) {
+        switch (method.getName()) {
+            case "end" -> {
+                targetActor.send(new QuitMessage());
+                return null;
             }
+            case "equals" -> {
+                return targetActor.equals(args[0]);
+            }
+            case "hashCode" -> {
+                return targetActor.hashCode();
+            }
+            case "toString" -> {
+                return targetActor.toString();
+            }
+        }
 
+        try {
+            // Set first letter of method name to uppercase
             String methodName = String.valueOf(method.getName().charAt(0)).toUpperCase()
                     + method.getName().substring(1);
 
@@ -59,6 +64,7 @@ public class DynamicProxy implements InvocationHandler {
             }
 
             msg.setSender(receivedMessages::add);
+            msg.setSenderName((targetActor instanceof Actor a ? a.getName() : "unknown") + " (DynamicProxy)");
 
             targetActor.send(msg);
 

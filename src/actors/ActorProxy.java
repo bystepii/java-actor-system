@@ -14,7 +14,7 @@ public class ActorProxy implements ActorRef {
     /**
      * The reference to the Actor.
      */
-    private final ActorRef actor;
+    private final ActorRef targetActor;
 
     /**
      * The queue of messages received by the Actor.
@@ -24,10 +24,10 @@ public class ActorProxy implements ActorRef {
     /**
      * Creates a new ActorProxy for the given Actor.
      *
-     * @param actor the Actor to create a proxy for.
+     * @param targetActor the Actor to create a proxy for.
      */
-    public ActorProxy(ActorRef actor) {
-        this.actor = actor;
+    public ActorProxy(ActorRef targetActor) {
+        this.targetActor = targetActor;
     }
 
     /**
@@ -41,7 +41,8 @@ public class ActorProxy implements ActorRef {
     public void send(Message<?> msg) {
         if (msg.getSender() == null)
             msg.setSender(receivedMessages::add);
-        actor.send(msg);
+        msg.setSenderName((targetActor instanceof Actor a ? a.getName() : "unknown") + " (ActorProxy)");
+        targetActor.send(msg);
     }
 
     /**
