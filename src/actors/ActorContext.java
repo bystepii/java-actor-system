@@ -1,5 +1,7 @@
 package actors;
 
+import monitoring.ActorEvent;
+
 import java.util.HashMap;
 import java.util.Set;
 
@@ -30,7 +32,13 @@ public class ActorContext {
     public static ActorProxy spawnActor(String name, Actor actor) {
         actor.setName(name);
         actors.put(name, actor);
-        new Thread(actor::start).start();
+        Thread t = new Thread(actor::start);
+        t.setUncaughtExceptionHandler((t1, e) -> {
+            System.err.println("Thread aborted with an uncaught exception: " + e);
+            e.printStackTrace();
+            actor.notifyListeners(new ActorEvent(actor, ActorEvent.EventType.ABORTED));
+        });
+        t.start();
         return new ActorProxy(actor);
     }
 
