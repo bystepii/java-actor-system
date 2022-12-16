@@ -1,8 +1,5 @@
 import actors.*;
-import messages.AddInsultMessage;
-import messages.GetAllInsultsMessage;
-import messages.GetInsultMessage;
-import messages.QuitMessage;
+import messages.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -90,5 +87,10 @@ public class Main {
 
 
         insult2.send(new QuitMessage());
+
+        ActorProxy hw = ActorContext.spawnActor("hw3", new HelloWorldActor());
+        hw.send(new Message<>("Hello World!"));
+        hw.send(new Message<>("Hey World!"));
+        hw.send(new QuitMessage());
     }
 }
