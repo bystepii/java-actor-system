@@ -39,13 +39,9 @@ public abstract class AbstractActor implements Actor {
 
     @Override
     public final void send(Message<?> msg) {
-        // Log the event
-        notifyListeners(
-                new MessageEvent<>(
-                        msg.getSender() instanceof Actor ? (Actor) msg.getSender() : null,
-                        ActorEvent.EventType.MESSAGE_SENT, msg
-                )
-        );
+        // Log the event if the sender is an Actor
+        if (msg.getSender() instanceof Actor sender)
+            notifyListeners(new MessageEvent<>(sender, ActorEvent.EventType.MESSAGE_SENT, msg));
         messageQueue.add(msg);
     }
 
