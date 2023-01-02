@@ -1,6 +1,7 @@
 package actors;
 
 import monitoring.ActorEvent;
+import monitoring.MonitorService;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -14,6 +15,7 @@ public class ActorContext {
      * The map of all the Actors in the system.
      */
     private static final HashMap<String, Actor> actors = new HashMap<>();
+    private static final HashMap<String, ActorProxy> actorProxies = new HashMap<>();
 
     /**
      * Private constructor to prevent instantiation.
@@ -36,10 +38,12 @@ public class ActorContext {
         t.setUncaughtExceptionHandler((t1, e) -> {
             System.err.println("Thread aborted with an uncaught exception: " + e);
             e.printStackTrace();
-            actor.notifyListeners(new ActorEvent(actor, ActorEvent.EventType.ABORTED));
+            MonitorService.getInstance().notifyListeners(new ActorEvent(name, ActorEvent.EventType.ABORTED));
         });
         t.start();
-        return new ActorProxy(actor);
+        ActorProxy actorProxy = new ActorProxy(actor);
+        actorProxies.put(name, actorProxy);
+        return actorProxy;
     }
 
     /**
@@ -48,7 +52,11 @@ public class ActorContext {
      * @param name the name of the Actor.
      * @return the Actor with the given name.
      */
-    public static Actor lookup(String name) {
+    public static ActorProxy lookupProxy(String name) {
+        return actorProxies.get(name);
+    }
+
+    public static Actor lookupActor(String name) {
         return actors.get(name);
     }
 

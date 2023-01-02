@@ -1,13 +1,12 @@
 package actors;
 
 import messages.Message;
-import monitoring.Monitorable;
 
 /**
  * An Actor is an object that can receive messages and react to them.
  * This is the interface that all Actors must implement.
  */
-public interface Actor extends ActorRef, ProcessModifiable<Message<?>>, Monitorable {
+public interface Actor extends ActorRef, ProcessModifiable<Message<?>> {
     void start();
 
     /**

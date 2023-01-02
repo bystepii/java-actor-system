@@ -1,7 +1,5 @@
 package monitoring;
 
-import actors.Actor;
-
 import java.util.EventObject;
 
 public class ActorEvent extends EventObject {
@@ -14,14 +12,14 @@ public class ActorEvent extends EventObject {
      * @param source the object on which the Event initially occurred
      * @throws IllegalArgumentException if source is null
      */
-    public ActorEvent(Actor source, EventType eventType) {
+    public ActorEvent(String source, EventType eventType) {
         super(source);
         this.eventType = eventType;
     }
 
     @Override
-    public Actor getSource() {
-        return (Actor) super.getSource();
+    public String getSource() {
+        return (String) super.getSource();
     }
 
     public EventType getEventType() {

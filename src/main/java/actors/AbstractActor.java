@@ -5,6 +5,7 @@ import messages.QuitMessage;
 import monitoring.ActorEvent;
 import monitoring.ActorListener;
 import monitoring.MessageEvent;
+import monitoring.MonitorService;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -39,9 +40,9 @@ public abstract class AbstractActor implements Actor {
 
     @Override
     public final void send(Message<?> msg) {
-        // Log the event if the sender is an Actor
-        if (msg.getSender() instanceof Actor sender)
-            notifyListeners(new MessageEvent<>(sender, ActorEvent.EventType.MESSAGE_SENT, msg));
+        MonitorService.getInstance().notifyListeners(
+                new MessageEvent<>(msg.getSenderName(), ActorEvent.EventType.MESSAGE_SENT, msg)
+        );
         messageQueue.add(msg);
     }
 
@@ -50,15 +51,19 @@ public abstract class AbstractActor implements Actor {
         if (hasStarted)
             throw new IllegalStateException("Actor has already started!");
         hasStarted = true;
-        notifyListeners(new ActorEvent(this, ActorEvent.EventType.CREATED));
+        MonitorService.getInstance().notifyListeners(new ActorEvent(getName(), ActorEvent.EventType.CREATED));
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 Message<?> m = messageQueue.take();
-                notifyListeners(new MessageEvent<>(this, ActorEvent.EventType.MESSAGE_RECEIVED, m));
+                MonitorService.getInstance().notifyListeners(
+                        new MessageEvent<>(getName(), ActorEvent.EventType.MESSAGE_RECEIVED, m)
+                );
                 if (m instanceof QuitMessage) {
                     Thread.currentThread().interrupt();
-                    notifyListeners(new ActorEvent(this, ActorEvent.EventType.STOPPED));
+                    MonitorService.getInstance().notifyListeners(
+                            new ActorEvent(getName(), ActorEvent.EventType.STOPPED)
+                    );
                 } else {
                     for (var modifier : modifiers)
                         m = modifier.modify(m);
@@ -94,21 +99,5 @@ public abstract class AbstractActor implements Actor {
     @Override
     public void removeModifier(Modifier<Message<?>> modifier) {
         modifiers.remove(modifier);
-    }
-
-    @Override
-    public void attach(ActorListener listener) {
-        listeners.add(listener);
-    }
-
-    @Override
-    public void detach(ActorListener listener) {
-        listeners.remove(listener);
-    }
-
-    @Override
-    public void notifyListeners(ActorEvent event) {
-        for (var listener : listeners)
-            listener.onEvent(event);
     }
 }

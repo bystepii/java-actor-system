@@ -1,6 +1,6 @@
 package monitoring;
 
-public interface Monitorable {
+public interface Publisher {
     void attach(ActorListener listener);
 
     void detach(ActorListener listener);

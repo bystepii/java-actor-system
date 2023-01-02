@@ -3,7 +3,7 @@ package messages;
 import actors.ActorRef;
 
 public class Message<T> {
-    private ActorRef sender;
+    private transient ActorRef sender;
     private String senderName;
     private T body;
 

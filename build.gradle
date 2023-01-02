@@ -6,8 +6,15 @@
  * User Manual available at https://docs.gradle.org/7.6/userguide/building_java_projects.html
  */
 
+plugins {
+    // Use 4.0.4 for tomcat10
+    //id "org.gretty" version "4.0.3"
+    id "org.gretty" version "3.1.1"
+}
+
 apply plugin: 'application'
-apply plugin : 'java'
+apply plugin: 'java'
+apply plugin: 'war'
 
 application {
     getMainClass().set('Main')
@@ -24,10 +31,50 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
+
+    // Use this modified version of xmlrpc-client and xmlrpc-server as it supports JakartaEE
+    //implementation 'com.evolvedbinary.thirdparty.org.apache.xmlrpc:xmlrpc-client:5.0.0'
+    //implementation 'com.evolvedbinary.thirdparty.org.apache.xmlrpc:xmlrpc-server:5.0.0'
+
+    implementation 'org.apache.xmlrpc:xmlrpc-client:3.1.3'
+    implementation 'org.apache.xmlrpc:xmlrpc-server:3.1.3'
+
+    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
+    compileOnly 'javax.portlet:portlet-api:3.0.1'
+
+    //implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+    implementation 'org.slf4j:slf4j-api:2.0.6'
+    implementation 'org.slf4j:slf4j-simple:2.0.6'
+
+    implementation 'org.glassfish.main.javaee-api:javax.jws:3.1.2.2'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
+
+    // For Json RPC
+    implementation 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.6'
+
+    // Java web sockets
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+
+    // JSON
+    implementation 'com.google.code.gson:gson:2.10'
+}
+
+gretty {
+    // Use tomcat10 if jakarta needs to be used
+    // jetty cannot be used as it does not support Java 19
+    servletContainer = 'tomcat9'
+    httpPort = 8080
+    contextPath = '/'
+    //loggingLevel = 'ALL'
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += "--enable-preview"
+    options.compilerArgs += "-Xlint:unchecked"
+    options.compilerArgs += "-Xlint:preview"
 }
 
 tasks.withType(Test).configureEach {
