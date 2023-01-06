@@ -13,6 +13,9 @@ plugins {
 
     // For jmh benchmarks
     id "me.champeau.jmh" version "0.6.8"
+
+    // For coverage
+    id "jacoco"
 }
 
 apply plugin: 'java-library'
@@ -79,8 +82,19 @@ gretty {
     //loggingLevel = 'ALL'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(19)
+    }
+}
+
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
 }
 
 jmh {
