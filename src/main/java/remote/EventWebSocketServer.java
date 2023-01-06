@@ -69,6 +69,8 @@ public class EventWebSocketServer extends WebSocketServer {
      * @param subscriptionId the subscription id.
      */
     public static void subscribe(int subscriptionId) {
+        if (subscriptions.contains(subscriptionId))
+            throw new IllegalArgumentException("Subscription already exists");
         subscriptions.add(subscriptionId);
     }
 

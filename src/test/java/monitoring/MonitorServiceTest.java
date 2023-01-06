@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,7 +41,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should be able to monitor actors")
     public void testMonitorActor() {
-        ActorProxy proxy = ActorContext.spawnActor(name, actor);
+        ActorContext.spawnActor(name, actor);
 
         try {
             Thread.sleep(1000);
@@ -267,14 +268,14 @@ public class MonitorServiceTest {
 
         // Multiple actor names
         List<ActorEvent> allEvents = monitorService.getEvents(name, name2);
-        expected.addAll(expected);
+        List<ActorEvent.EventType> expected2 = Stream.concat(expected.stream(), expected.stream()).toList();
         assertThat(allEvents.stream().map(ActorEvent::getEventType).toList())
-                .containsExactlyInAnyOrderElementsOf(expected);
+                .containsExactlyInAnyOrderElementsOf(expected2);
 
         // All events
         allEvents = monitorService.getAllEvents();
         assertThat(allEvents.stream().map(ActorEvent::getEventType).toList())
-                .containsExactlyInAnyOrderElementsOf(expected);
+                .containsExactlyInAnyOrderElementsOf(expected2);
     }
 
     @Test

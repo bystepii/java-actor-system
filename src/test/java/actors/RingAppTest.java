@@ -43,7 +43,7 @@ public class RingAppTest {
     public void testRingMessage() {
         ActorProxy proxy = ActorContext.spawnActor(name, actor);
         proxy.send(new SpawnActorRingMessage(10));
-        List<String> actorNames = proxy.<List<String>>receive().getBody();
+        proxy.<List<String>>receive();
 
         List<RingMessage> messages = new ArrayList<>();
 

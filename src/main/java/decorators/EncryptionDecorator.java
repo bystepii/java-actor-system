@@ -47,12 +47,11 @@ public class EncryptionDecorator extends AbstractDecorator {
                     && emsg.getBody() instanceof String body
                     && !body.isEmpty()) {
                 try {
-                    Message<String> dmsg = new Message<>(
+                    return new Message<>(
                             emsg.getSender(),
                             emsg.getSenderName(),
                             aes.decrypt(body, password)
                     );
-                    return dmsg;
                 } catch (Exception e) {
                     logger.error("Error decrypting message: ", e);
                 }

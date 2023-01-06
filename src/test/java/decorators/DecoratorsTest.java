@@ -65,9 +65,6 @@ public class DecoratorsTest {
         ActorProxy proxy = ActorContext.spawnActor(name, actor);
         proxy.send(new Message<>("Hello World"));
         assertEquals("Hello World", proxy.receive().getBody());
-        //proxy.send(new QuitMessage());
-        //proxy.send(new Message<>("Hello World"));
-        //assertThrows(TimeoutException.class, () -> proxy.receive(100));
     }
 
     @Test
