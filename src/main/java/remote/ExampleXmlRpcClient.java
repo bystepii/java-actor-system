@@ -9,7 +9,23 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * Example XML-RPC client that connects to the XML-RPC server.
+ */
 public class ExampleXmlRpcClient {
+
+    /**
+     * Default constructor.
+     */
+    public ExampleXmlRpcClient() {
+
+    }
+
+    /**
+     * Main method.
+     *
+     * @param args the command line arguments.
+     */
     public static void main(String[] args) {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();

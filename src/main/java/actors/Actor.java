@@ -4,9 +4,16 @@ import messages.Message;
 
 /**
  * An Actor is an object that can receive messages and react to them.
+ * <p>
  * This is the interface that all Actors must implement.
  */
 public interface Actor extends ActorRef, ProcessModifiable<Message<?>> {
+
+    /**
+     * Starts the Actor.
+     * This method is called by the ActorContext when the Actor is spawned.
+     * It should not be called by the user.
+     */
     void start();
 
     /**

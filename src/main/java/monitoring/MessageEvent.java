@@ -2,15 +2,36 @@ package monitoring;
 
 import messages.Message;
 
-public class MessageEvent<T> extends ActorEvent {
-    private final Message<T> message;
+/**
+ * This class represents an event of a sent or received message.
+ *
+ * @param <T> the type of the message.
+ */
+public class MessageEvent<T extends Message<?>> extends ActorEvent {
 
-    public MessageEvent(String source, EventType eventType, Message<T> message) {
+    /**
+     * The message that was sent or received.
+     */
+    private final T message;
+
+    /**
+     * Constructs a MessageEvent.
+     *
+     * @param source    the name of the Actor that generated the event.
+     * @param eventType the type of the event.
+     * @param message   the message that was sent or received.
+     */
+    public MessageEvent(String source, EventType eventType, T message) {
         super(source, eventType);
         this.message = message;
     }
 
-    public Message<T> getMessage() {
+    /**
+     * Getter for the message that was sent or received.
+     *
+     * @return the message that was sent or received.
+     */
+    public T getMessage() {
         return message;
     }
 }

@@ -2,6 +2,8 @@ package actors;
 
 import messages.Message;
 import messages.MethodInvocationMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +19,10 @@ import java.util.Arrays;
 public class ReflectiveActor extends AbstractActor {
 
     /**
+     * The logger for this actor.
+     */
+    private static final Logger logger = LoggerFactory.getLogger(ReflectiveActor.class);
+    /**
      * The object on which the methods will be invoked.
      */
     private final Service implementation;
@@ -26,7 +32,6 @@ public class ReflectiveActor extends AbstractActor {
      *
      * @param implementation the object on which the methods will be invoked.
      */
-
     public ReflectiveActor(Service implementation) {
         this.implementation = implementation;
     }
@@ -48,7 +53,7 @@ public class ReflectiveActor extends AbstractActor {
             methodName = m.getMethodName();
             args = m.getArgs();
             parameterTypes = args == null ?
-                    null : Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
+                    null : Arrays.stream(args).map(Object::getClass).toArray(Class[]::new);
         } else {
             // Get the name of the message class.
             Class<?> msgClass = msg.getClass();
@@ -81,9 +86,9 @@ public class ReflectiveActor extends AbstractActor {
             if (returnType != void.class)
                 msg.getSender().send(new Message<>(this, name, result));
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("No method with name " + methodName + " in class " + implementation.getClass().getName());
+            logger.error("No method with name " + methodName + " in class " + implementation.getClass().getName(), e);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error("Error while invoking method " + methodName + " in class " + implementation.getClass().getName(), e);
         }
     }
 }

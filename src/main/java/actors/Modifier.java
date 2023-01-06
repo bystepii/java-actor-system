@@ -11,6 +11,7 @@ public interface Modifier<T> {
      * Modifies the message object.
      *
      * @param object the message object to modify.
+     * @return the modified message object.
      */
     T modify(T object);
 }

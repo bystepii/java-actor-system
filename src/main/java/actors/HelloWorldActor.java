@@ -2,7 +2,17 @@ package actors;
 
 import messages.Message;
 
+/**
+ * Hello world actor. Simply prints the message it receives.
+ */
 public class HelloWorldActor extends AbstractActor {
+
+    /**
+     * Default constructor.
+     */
+    public HelloWorldActor() {
+
+    }
 
     @Override
     public void process(Message<?> msg) {

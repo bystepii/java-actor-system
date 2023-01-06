@@ -1,9 +1,14 @@
 package actors;
 
 import messages.Message;
+import monitoring.ActorEvent;
+import monitoring.MessageEvent;
+import monitoring.MonitorService;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Represents a proxy for an Actor, which can be used to send and receive
@@ -17,7 +22,7 @@ public class ActorProxy implements ActorRef {
     private final ActorRef targetActor;
 
     /**
-     * The queue of messages received by the Actor.
+     * The queue of messages received from the Actor.
      */
     private final BlockingQueue<Message<?>> receivedMessages = new LinkedBlockingQueue<>();
 
@@ -38,9 +43,17 @@ public class ActorProxy implements ActorRef {
      *
      * @param msg the message to send.
      */
+    @Override
     public void send(Message<?> msg) {
         if (msg.getSender() == null)
-            msg.setSender(receivedMessages::add);
+            msg.setSender(msg1 -> {
+                // Notify the listeners about the message sent by the actor
+                if (msg1.getSenderName() != null)
+                    MonitorService.getInstance().notifyListeners(
+                            new MessageEvent<>(msg1.getSenderName(), ActorEvent.EventType.MESSAGE_SENT, msg1)
+                    );
+                receivedMessages.add(msg1);
+            });
         msg.setSenderName((targetActor instanceof Actor a ? a.getName() : "unknown") + " (ActorProxy)");
         targetActor.send(msg);
     }
@@ -49,11 +62,37 @@ public class ActorProxy implements ActorRef {
      * Returns the next message received by the Actor.
      *
      * @return the next message received by the Actor.
+     * @throws ClassCastException if the message cannot be cast to the given type.
+     * @param <T> the type of the message.
      */
-    public Message<?> receive() {
+    public <T> Message<T> receive() throws ClassCastException {
         while (true) {
             try {
-                return receivedMessages.take();
+                @SuppressWarnings("unchecked") // Cast the message to the expected type.
+                Message<T> msg = (Message<T>) receivedMessages.take();
+                return msg;
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    /**
+     * Returns the next message received by the Actor.
+     *
+     * @param timeout the timeout in milliseconds.
+     * @return the next message received by the Actor.
+     * @throws TimeoutException   if the timeout is reached.
+     * @throws ClassCastException if the message cannot be cast to the given type.
+     * @param <T> the type of the message.
+     */
+    public <T> Message<T> receive(long timeout) throws TimeoutException, ClassCastException {
+        while (true) {
+            try {
+                @SuppressWarnings("unchecked") // Cast the message to the expected type.
+                Message<T> msg = (Message<T>) receivedMessages.poll(timeout, TimeUnit.MILLISECONDS);
+                if (msg == null)
+                    throw new TimeoutException();
+                return msg;
             } catch (InterruptedException ignored) {
             }
         }
