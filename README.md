@@ -67,3 +67,7 @@ are outdated and have known vulnerabilities (see [CVE report for Apache XMLRPC](
 
 To start the RPC server, run `./gradlew appRun`. This will start the XMLRPC and JSONRPC servlets (using tomcat 9)
 on port 8080, accessible at `http://localhost:8080/xmlrpc` and `http://localhost:8080/jsonrpc`, respectively.
+
+### Trying out the RPC server
+
+To try out the RPC server, you can use the [Actor System UI](https://github.com/bystepii/actor-system-ui).
