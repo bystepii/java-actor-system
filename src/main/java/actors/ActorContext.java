@@ -96,6 +96,14 @@ public class ActorContext {
         ActorProxy actorProxy = new ActorProxy(actor);
         actorProxies.put(name, actorProxy);
 
+        MonitorService.getInstance().attach((event) -> {
+            if (event.getSource().equals(name) &&
+                    event.getEventType() == ActorEvent.EventType.STOPPED) {
+                actorProxies.remove(name);
+                actors.remove(name);
+            }
+        });
+
         return actorProxy;
     }
 

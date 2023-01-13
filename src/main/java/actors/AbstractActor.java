@@ -1,5 +1,6 @@
 package actors;
 
+import messages.DelayedMessage;
 import messages.Message;
 import messages.QuitMessage;
 import messages.SleepMessage;
@@ -84,13 +85,19 @@ public abstract class AbstractActor implements Actor {
                 Message<?> m = messageQueue.poll(1000, TimeUnit.SECONDS);
                 if (m instanceof QuitMessage)
                     hasStopped = true;
-                else if (m instanceof SleepMessage s)
-                    Thread.sleep(s.getMillis());
+                else if (m instanceof DelayedMessage d)
+                    Thread.sleep(d.getMillis());
 
                 // Also forward the QuitMessage
                 for (var modifier : modifiers)
                     m = modifier.modify(m);
                 process(m);
+
+                // create the process event for the actor
+                if (m != null)
+                    MonitorService.getInstance().notifyListeners(
+                            new ActorEvent(name, ActorEvent.EventType.MESSAGE_PROCESSED)
+                    );
             } catch (InterruptedException ignored) {
             }
         }

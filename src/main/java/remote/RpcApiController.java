@@ -12,9 +12,11 @@ import monitoring.MonitorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class is a controller for both the JSON-RPC API and the XML-RPC API.
@@ -35,11 +37,6 @@ public class RpcApiController {
      * The instance of the WebSocket server that sends the events to the clients.
      */
     private static EventWebSocketServer server;
-
-    /**
-     * Subscription id counter.
-     */
-    private static int subscriptionId = 0;
 
     /**
      * Default constructor.
@@ -123,30 +120,26 @@ public class RpcApiController {
      * @return a success response if the actor was spawned successfully, an error response otherwise.
      * @apiNote The actor class must be a subclass of {@link actors.Actor}.
      * The name of the class can omit the package name.
+     * @throws ClassNotFoundException if the class was not found.
+     * @throws NoSuchMethodException if the class does not have a constructor with no parameters.
+     * @throws IllegalAccessException if the class or its constructor is not accessible.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws InstantiationException if the class is abstract.
      */
     @JsonRpcMethod("api.spawnActor")
-    public Map<String, Object> spawnActor(String actorName, String actorClass) {
+    public Map<String, Object> spawnActor(String actorName, String actorClass) throws NoSuchMethodException,
+            InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         logger.info("spawnActor(): actorName = {}, actorClass = {}", actorName, actorClass);
 
         Class<?> clazz;
         try {
             clazz = Class.forName(actorClass);
         } catch (ClassNotFoundException e) {
-            try {
-                clazz = Class.forName("actors." + actorClass);
-            } catch (ClassNotFoundException e1) {
-                logger.error("spawnActor(): Class not found: {}", actorClass);
-                return error("Class not found: " + actorClass);
-            }
+            clazz = Class.forName("actors." + actorClass);
         }
-        try {
-            ActorContext.spawnActor(actorName, (Actor) clazz.getConstructor().newInstance());
-            logger.info("spawnActor(): Actor spawned: {}", actorName);
-            return ok();
-        } catch (Exception e) {
-            logger.error("spawnActor(): Error spawning actor: {}", actorName);
-            return error(e.getMessage());
-        }
+        ActorContext.spawnActor(actorName, (Actor) clazz.getConstructor().newInstance());
+        logger.info("spawnActor(): Actor spawned: {}", actorName);
+        return ok();
     }
 
     /**
@@ -185,32 +178,60 @@ public class RpcApiController {
      *
      * @param actorName    the name of the actor.
      * @param messageClass the class of the message.
-     * @param messageBody  the body of the message.
+     * @param messageArgs  the arguments of the message.
      * @return a success response if the message was sent successfully, an error response otherwise.
+     * @throws ClassNotFoundException if the class was not found.
+     * @throws NoSuchMethodException if the class does not have a constructor with the specified arguments.
+     * @throws IllegalAccessException if the class or its constructor is not accessible.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws InstantiationException if the class is abstract.
      */
-    @JsonRpcMethod("api.sendSpecial")
-    public Map<String, Object> sendSpecial(String actorName, String messageClass, String messageBody) {
-        logger.info("sendSpecial(): actorName = {}, messageClass = {}, messageBody = {}", actorName, messageClass, messageBody);
+    @JsonRpcMethod("api.send")
+    public Map<String, Object> send(String actorName, String messageClass, Object[] messageArgs)
+            throws NoSuchMethodException, InvocationTargetException,
+            InstantiationException, IllegalAccessException, ClassNotFoundException {
+        logger.info("send(): actorName = {}, messageClass = {}, messageArgs = {}",
+                actorName, messageClass, Arrays.stream(messageArgs).reduce("", (a, b) -> a + ", " + b));
 
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(messageClass);
-        } catch (ClassNotFoundException e) {
+        String[] names = {
+                messageClass,
+                "messages." + messageClass,
+                messageClass + "Message",
+                "messages." + messageClass + "Message"
+        };
+
+        Class<?> clazz = null;
+        ClassNotFoundException exception = null;
+        for (String name : names) {
             try {
-                clazz = Class.forName("messages." + messageClass);
-            } catch (ClassNotFoundException e1) {
-                logger.error("sendSpecial(): Class not found: {}", messageClass);
-                return error("Class not found: " + messageClass);
+                clazz = Class.forName(name);
+            } catch (ClassNotFoundException e) {
+                exception = e;
             }
         }
-        try {
-            ActorContext.lookupProxy(actorName).send((Message<?>) clazz.getConstructor().newInstance(messageBody));
-            logger.info("sendSpecial(): Message sent");
-            return ok();
-        } catch (Exception e) {
-            logger.error("sendSpecial(): Error sending message", e);
-            return error(e.getMessage());
+
+        if (clazz == null) {
+            logger.error("send(): {} message class not found: ", messageClass, exception);
+            throw exception;
         }
+
+        Class<?>[] types = Arrays.stream(messageArgs)
+                .map(Object::getClass)
+                .map((c) -> {
+                    if (c.isPrimitive()) return c;
+                    try {
+                        Class<?> claz = Class.forName("java.lang." + c.getSimpleName());
+                        return (Class<?>) claz.getField("TYPE").get(null);
+                    } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+                        return c;
+                    }
+                })
+                .toArray(Class<?>[]::new);
+        Constructor<?> constructor = clazz.getConstructor(types);
+        Object msg = constructor.newInstance(messageArgs);
+        ActorContext.lookupProxy(actorName).send((Message<?>) msg);
+        logger.info("send(): Message sent");
+        return ok();
     }
 
     /**
@@ -221,15 +242,30 @@ public class RpcApiController {
      */
     @JsonRpcMethod("api.receive")
     public Map<String, Object> receive(String name) {
-        logger.info("receive: {}", name);
+        logger.info("receive: name = {}", name);
         return ok(ActorContext.lookupProxy(name).receive().getBody());
+    }
+
+    /**
+     * Receive a message from the specified actor using {@link ActorProxy#receive(long)} method,
+     * with the specified timeout.
+     *
+     * @param name the name of the actor.
+     * @param timeout the timeout in milliseconds.
+     * @return a success response with the message body
+     * @throws TimeoutException if the timeout expires.
+     */
+    @JsonRpcMethod("api.receive")
+    public Map<String, Object> receive(String name, long timeout) throws TimeoutException {
+        logger.info("receive: name = {}, timeout = {}", name, timeout);
+        return ok(ActorContext.lookupProxy(name).receive(timeout).getBody());
     }
 
     /**
      * Subscribe to the specified events and actors.
      *
      * @param eventTypes the list of the event types.
-     * @param actorNames the list of the actor names.
+     * @param actorNames the list of the actor names, if the list is empty, subscribe to all actors.
      * @return a success response if the subscription was successful with the subscription id and the
      * websocket url, an error response otherwise.
      */
@@ -252,13 +288,16 @@ public class RpcApiController {
             logger.info("subscribe(): Server started");
         }
 
+        int subscriptionId = UUID.randomUUID().hashCode();
+
         EventWebSocketServer.subscribe(subscriptionId);
+
         ActorListener listener = new ActorListenerImpl(subscriptionId, eventTypesEnum, actorNames);
         subscriptions.put(subscriptionId, listener);
         MonitorService.getInstance().attach(listener);
 
         Map<String, Object> result = Map.of(
-                "subscriptionId", subscriptionId++,
+                "subscriptionId", subscriptionId,
                 "url", EventWebSocketServer.getUrl()
         );
 
@@ -295,7 +334,8 @@ public class RpcApiController {
     ) implements ActorListener {
         @Override
         public void onEvent(ActorEvent event) {
-            if (eventTypes.contains(event.getEventType()) && actorNames.contains(event.getSource()))
+            if (eventTypes.contains(event.getEventType()) &&
+                    (actorNames.isEmpty() || actorNames.contains(event.getSource())))
                 EventWebSocketServer.sendEvent(subscriptionId, event);
         }
     }

@@ -15,6 +15,11 @@ public class MessageEvent<T extends Message<?>> extends ActorEvent {
     private final T message;
 
     /**
+     * The name of the message class
+     */
+    private final String messageClass;
+
+    /**
      * Constructs a MessageEvent.
      *
      * @param source    the name of the Actor that generated the event.
@@ -24,6 +29,7 @@ public class MessageEvent<T extends Message<?>> extends ActorEvent {
     public MessageEvent(String source, EventType eventType, T message) {
         super(source, eventType);
         this.message = message;
+        this.messageClass = message.getClass().getSimpleName();
     }
 
     /**

@@ -1,11 +1,14 @@
 package monitoring;
 
-import java.util.EventObject;
-
 /**
  * This class represents an event that occurs in an Actor.
  */
-public class ActorEvent extends EventObject {
+public class ActorEvent {
+
+    /**
+     * The source of the event.
+     */
+    private final String source;
 
     /**
      * The type of the event.
@@ -20,18 +23,17 @@ public class ActorEvent extends EventObject {
      * @throws IllegalArgumentException if source is null
      */
     public ActorEvent(String source, EventType eventType) {
-        super(source);
+        this.source = source;
         this.eventType = eventType;
     }
 
     /**
      * Getter for the source of the event.
      *
-     * @return the name of the Actor that generated the event.
+     * @return the source of the event.
      */
-    @Override
     public String getSource() {
-        return (String) super.getSource();
+        return source;
     }
 
     /**
@@ -63,6 +65,10 @@ public class ActorEvent extends EventObject {
          * The Actor has sent a message.
          */
         MESSAGE_SENT,
+        /**
+         * The Actor has fiºnished processing a message.
+         */
+        MESSAGE_PROCESSED,
         /**
          * The Actor has received a message.
          */

@@ -35,12 +35,12 @@ public class MonitorServiceTest {
         instance.set(null, null);
 
         monitorService = MonitorService.getInstance();
-        monitorService.monitorActor(name);
     }
 
     @Test
     @DisplayName("MonitorService should be able to monitor actors")
     public void testMonitorActor() {
+        monitorService.monitorActor(name);
         ActorContext.spawnActor(name, actor);
 
         try {
@@ -56,6 +56,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should be able to capture creating and stopping actors")
     public void testMonitorActorStop() {
+        monitorService.monitorActor(name);
         ActorProxy proxy = ActorContext.spawnActor(name, new HelloWorldActor());
         proxy.send(new QuitMessage());
 
@@ -69,6 +70,7 @@ public class MonitorServiceTest {
         List<ActorEvent.EventType> expectedEvents = List.of(
                 ActorEvent.EventType.CREATED,
                 ActorEvent.EventType.MESSAGE_RECEIVED,
+                ActorEvent.EventType.MESSAGE_PROCESSED,
                 ActorEvent.EventType.STOPPED
         );
 
@@ -79,6 +81,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should be able to capture sending and receiving messages")
     public void testMonitorActorSendReceive() {
+        monitorService.monitorActor(name);
         ActorProxy proxy = ActorContext.spawnActor(name, new EchoActor());
         proxy.send(new Message<>("Hello World"));
         proxy.receive();
@@ -93,7 +96,8 @@ public class MonitorServiceTest {
         List<ActorEvent.EventType> expectedEvents = List.of(
                 ActorEvent.EventType.CREATED,
                 ActorEvent.EventType.MESSAGE_SENT,
-                ActorEvent.EventType.MESSAGE_RECEIVED
+                ActorEvent.EventType.MESSAGE_RECEIVED,
+                ActorEvent.EventType.MESSAGE_PROCESSED
         );
 
         assertThat(events.stream().map(ActorEvent::getEventType).collect(Collectors.toList()))
@@ -106,6 +110,7 @@ public class MonitorServiceTest {
         List<ActorProxy> proxies = new ArrayList<>();
         List<String> names = new ArrayList<>();
 
+        monitorService.monitorActor(name);
         names.add(name);
         proxies.add(ActorContext.spawnActor(name, actor));
 
@@ -180,6 +185,7 @@ public class MonitorServiceTest {
         List<ActorProxy> proxies = new ArrayList<>();
         List<String> names = new ArrayList<>();
 
+        monitorService.monitorActor(name);
         names.add(name);
         proxies.add(ActorContext.spawnActor(name, new HelloWorldActor()));
 
@@ -233,6 +239,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should return correct events")
     public void testEvents() {
+        monitorService.monitorActor(name);
         ActorProxy proxy = ActorContext.spawnActor(name, actor);
         String name2 = UUID.randomUUID().toString();
         monitorService.monitorActor(name2);
@@ -256,6 +263,8 @@ public class MonitorServiceTest {
                 ActorEvent.EventType.CREATED,
                 ActorEvent.EventType.MESSAGE_RECEIVED,
                 ActorEvent.EventType.MESSAGE_RECEIVED,
+                ActorEvent.EventType.MESSAGE_PROCESSED,
+                ActorEvent.EventType.MESSAGE_PROCESSED,
                 ActorEvent.EventType.MESSAGE_SENT,
                 ActorEvent.EventType.MESSAGE_SENT,
                 ActorEvent.EventType.STOPPED
@@ -281,6 +290,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should catch aborted event")
     public void testAbortedEvent() {
+        monitorService.monitorActor(name);
         ActorProxy proxy = ActorContext.spawnActor(name, new AbstractActor() {
             @Override
             protected void process(Message<?> msg) {
@@ -307,6 +317,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should return correct sent and received messages")
     public void testSentAndReceivedMessages() {
+        monitorService.monitorActor(name);
         ActorProxy proxy = ActorContext.spawnActor(name, actor);
         String name2 = UUID.randomUUID().toString();
         monitorService.monitorActor(name2);
@@ -345,6 +356,7 @@ public class MonitorServiceTest {
     @Test
     @DisplayName("MonitorService should return correct events grouped by type")
     public void testEventsGroupedByType() {
+        monitorService.monitorActor(name);
         ActorProxy proxy = ActorContext.spawnActor(name, actor);
         String name2 = UUID.randomUUID().toString();
         monitorService.monitorActor(name2);

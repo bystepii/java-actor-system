@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import monitoring.ActorEvent;
 import org.java_websocket.WebSocket;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -59,7 +60,12 @@ public class EventWebSocketServer extends WebSocketServer {
         WebSocket conn = subscriptionIdToConnection.get(subscriptionId);
         if (conn != null) {
             String json = gson.toJson(event);
-            conn.send(json);
+            try {
+                conn.send(json);
+            } catch (WebsocketNotConnectedException e) {
+                logger.error("sendEvent(): Error sending event to subscriptionId = {}", subscriptionId, e);
+                unsubscribe(subscriptionId);
+            }
         }
     }
 
@@ -70,7 +76,7 @@ public class EventWebSocketServer extends WebSocketServer {
      */
     public static void subscribe(int subscriptionId) {
         if (subscriptions.contains(subscriptionId))
-            throw new IllegalArgumentException("Subscription already exists");
+            throw new IllegalArgumentException("Subscription with id " + subscriptionId + " already exists");
         subscriptions.add(subscriptionId);
     }
 

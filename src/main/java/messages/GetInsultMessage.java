@@ -9,13 +9,22 @@ import actors.ActorRef;
  */
 public class GetInsultMessage extends Message<String> {
     /**
-     * Creates a new insult message.
+     * Message to get an insult.
+     *
      *
      * @param sender     the sender of the message
      * @param senderName the name of the sender
      */
     public GetInsultMessage(ActorRef sender, String senderName) {
         super(sender, senderName);
+    }
+
+    /**
+     * Creates a new GetInsultMessage with no sender.
+     * @param body the body of the message
+     */
+    public GetInsultMessage(String body) {
+        super(body);
     }
 
     /**

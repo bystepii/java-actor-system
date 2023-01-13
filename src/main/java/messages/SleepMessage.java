@@ -5,7 +5,7 @@ import actors.ActorRef;
 /**
  * A message that blocks the sender for a given amount of time.
  */
-public class SleepMessage extends Message<Long> {
+public class SleepMessage extends Message<Integer> implements DelayedMessage {
     /**
      * Default constructor.
      *
@@ -13,7 +13,7 @@ public class SleepMessage extends Message<Long> {
      * @param senderName the name of the sender.
      * @param millis the number of milliseconds to sleep.
      */
-    public SleepMessage(ActorRef sender, String senderName, long millis) {
+    public SleepMessage(ActorRef sender, String senderName, int millis) {
         super(sender, senderName, millis);
     }
 
@@ -22,15 +22,16 @@ public class SleepMessage extends Message<Long> {
      *
      * @param millis the number of milliseconds to sleep.
      */
-    public SleepMessage(long millis) {
+    public SleepMessage(int millis) {
         super(millis);
     }
 
     /**
      * Get the number of milliseconds to sleep.
+     *
      * @return the number of milliseconds to sleep.
      */
-    public long getMillis() {
+    public int getMillis() {
         return getBody();
     }
 }

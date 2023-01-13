@@ -79,19 +79,25 @@ public class ActorProxy implements ActorRef {
     /**
      * Returns the next message received by the Actor.
      *
-     * @param timeout the timeout in milliseconds.
+     * @param timeout the timeout in milliseconds. A timeout of 0 means wait indefinitely.
      * @return the next message received by the Actor.
      * @throws TimeoutException   if the timeout is reached.
      * @throws ClassCastException if the message cannot be cast to the given type.
      * @param <T> the type of the message.
      */
     public <T> Message<T> receive(long timeout) throws TimeoutException, ClassCastException {
+        if (timeout < 0)
+            throw new IllegalArgumentException("Timeout cannot be negative.");
+
+        if (timeout == 0)
+            return receive();
+
         while (true) {
             try {
                 @SuppressWarnings("unchecked") // Cast the message to the expected type.
                 Message<T> msg = (Message<T>) receivedMessages.poll(timeout, TimeUnit.MILLISECONDS);
                 if (msg == null)
-                    throw new TimeoutException();
+                    throw new TimeoutException("Timeout reached while waiting for a message.");
                 return msg;
             } catch (InterruptedException ignored) {
             }
